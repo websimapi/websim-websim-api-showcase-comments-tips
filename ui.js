@@ -1,5 +1,5 @@
-import marked from 'marked';
-import dompurify from 'dompurify';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 export const UI = {
     renderComment(comment) {
@@ -8,7 +8,7 @@ export const UI = {
         
         // Sanitize and parse markdown
         const rawHtml = marked.parse(comment.raw_content || '');
-        const cleanHtml = dompurify.sanitize(rawHtml);
+        const cleanHtml = DOMPurify.sanitize(rawHtml);
 
         const date = new Date(comment.created_at || Date.now()).toLocaleDateString(undefined, {
             month: 'short',
