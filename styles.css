@@ -50,6 +50,27 @@ header {
     font-weight: 700;
 }
 
+.title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.icon-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 4px;
+    color: var(--text-main);
+    cursor: pointer;
+    padding: 2px 6px;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
 .project-info p {
     font-size: 0.8rem;
     color: var(--text-muted);

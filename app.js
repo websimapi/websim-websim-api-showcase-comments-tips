@@ -17,7 +17,8 @@ class App {
             loadMore: document.getElementById('load-more'),
             tabs: document.querySelectorAll('.tab-btn'),
             btnComment: document.getElementById('btn-comment'),
-            btnTip: document.getElementById('btn-tip')
+            btnTip: document.getElementById('btn-tip'),
+            btnCopyInfo: document.getElementById('btn-copy-info')
         };
 
         this.init();
@@ -52,6 +53,8 @@ class App {
                 Api.postComment("Support for this awesome project!", 100);
             });
 
+            this.els.btnCopyInfo.addEventListener('click', () => this.copyTechnicalOverview());
+
             // Listen for new comments in real-time
             Api.onCommentCreated((data) => {
                 const comment = data.comment;
@@ -85,6 +88,44 @@ class App {
 
         this.els.feed.innerHTML = '';
         await this.loadComments();
+    }
+
+    copyTechnicalOverview() {
+        const overview = `Websim API Showcase: Comments & Tips
+This project demonstrates the integration of the Websim Comments API.
+
+Key Implementation Details:
+1. User & Project Context:
+   - Uses window.websim.getCurrentProject(), getCurrentUser(), and getCreator() to establish identity and scope.
+   
+2. Dynamic Comment Loading:
+   - Fetches from /api/v1/projects/{id}/comments.
+   - Handles pagination via cursor-based 'after' parameters.
+   - Implements sorting ('sort_by=best') and specific filtering ('only_tips=true') via tabbed navigation.
+
+3. Interactive Posting & Tipping:
+   - Leverages window.websim.postComment() for creating standard replies and pre-filled Tip Comments.
+   - Tip Comments are identified via 'card_data.type === "tip_comment"' and 'card_data.credits_spent'.
+
+4. Real-time Synchronization:
+   - Listens for the 'comment:created' event to instantly inject new community activity into the UI without polling.
+
+5. Rich Content Rendering:
+   - Content is stored as Markdown.
+   - Renders HTML safely using 'marked' for parsing and 'DOMPurify' for sanitization.
+   - Automatically handles image attachments within the comment stream.
+
+6. UX Features:
+   - Mobile-first responsive design with blurred glass effects.
+   - Toast notifications for new events.
+   - Modular architecture splitting API, UI, and Application logic.`;
+
+        navigator.clipboard.writeText(overview).then(() => {
+            UI.showToast("Technical overview copied to clipboard!");
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+            UI.showToast("Copy failed. See console.");
+        });
     }
 
     async loadComments(isMore = false) {
