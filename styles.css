@@ -242,6 +242,124 @@ main {
     height: 20px;
 }
 
+/* Modal Styling */
+#modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal {
+    background: #1e293b;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    font-size: 1.2rem;
+    color: var(--accent);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.modal-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+#tier-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.tier-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s;
+}
+
+.tier-card.locked {
+    opacity: 0.8;
+}
+
+.tier-card.unlocked {
+    border-color: var(--accent);
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.tier-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tier-name {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.tier-reward {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.tier-cost {
+    background: var(--accent);
+    color: #000;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border: none;
+}
+
+.tier-cost:disabled {
+    background: #475569;
+    color: #94a3b8;
+    cursor: default;
+}
+
 #load-more {
     width: 100%;
     background: transparent;

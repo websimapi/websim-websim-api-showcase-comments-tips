@@ -1,11 +1,24 @@
 import { Api } from './api.js';
 import { UI } from './ui.js';
 
+const TIERS = [
+    { threshold: 5, name: "Bronze Supporter", reward: "Bronze Badge Icon", icon: "🥉" },
+    { threshold: 25, name: "Silver Supporter", reward: "Silver Badge Icon", icon: "🥈" },
+    { threshold: 50, name: "Gold Supporter", reward: "Gold Badge Icon", icon: "🥇" },
+    { threshold: 100, name: "Platinum Supporter", reward: "Platinum Name Highlight", icon: "💎" },
+    { threshold: 150, name: "Diamond Supporter", reward: "Diamond Avatar Glow", icon: "✨" },
+    { threshold: 250, name: "Elite Supporter", reward: "Custom Comment Border", icon: "⚔️" },
+    { threshold: 500, name: "Legendary Donor", reward: "Legendary Title", icon: "🔥" },
+    { threshold: 1000, name: "Mythic Patron", reward: "Golden Profile Theme", icon: "🔱" },
+    { threshold: 2500, name: "Immortal Benefactor", reward: "Immortal VIP Status", icon: "👑" }
+];
+
 class App {
     constructor() {
         this.currentTab = 'all';
         this.nextCursor = null;
         this.isLoading = false;
+        this.userTotalTipped = 0;
         
         this.els = {
             title: document.getElementById('project-title'),
@@ -18,7 +31,11 @@ class App {
             tabs: document.querySelectorAll('.tab-btn'),
             btnComment: document.getElementById('btn-comment'),
             btnTip: document.getElementById('btn-tip'),
-            btnCopyInfo: document.getElementById('btn-copy-info')
+            btnCopyInfo: document.getElementById('btn-copy-info'),
+            btnRewards: document.getElementById('btn-rewards'),
+            modal: document.getElementById('modal-overlay'),
+            closeModal: document.getElementById('close-modal'),
+            tierList: document.getElementById('tier-list')
         };
 
         this.init();
@@ -27,6 +44,12 @@ class App {
     async init() {
         try {
             const { project, user, creator } = await Api.getProjectData();
+            this.currentUser = user;
+            
+            // Calculate initial tips for current user
+            if (user) {
+                await this.calculateUserTotalTipped(user.id);
+            }
             
             // UI Setup
             this.els.title.innerText = project.title;
@@ -50,7 +73,19 @@ class App {
             });
 
             this.els.btnTip.addEventListener('click', () => {
-                Api.postComment("Support for this awesome project!", 100);
+                this.openRewardsModal();
+            });
+
+            this.els.btnRewards.addEventListener('click', () => {
+                this.openRewardsModal();
+            });
+
+            this.els.closeModal.addEventListener('click', () => {
+                this.els.modal.classList.add('hidden');
+            });
+
+            this.els.modal.addEventListener('click', (e) => {
+                if (e.target === this.els.modal) this.els.modal.classList.add('hidden');
             });
 
             this.els.btnCopyInfo.addEventListener('click', () => this.copyTechnicalOverview());
@@ -60,6 +95,15 @@ class App {
                 const comment = data.comment;
                 UI.showToast(`New comment from ${comment.author.username}!`);
                 
+                // Update local total if current user tipped
+                if (this.currentUser && comment.author.id === this.currentUser.id) {
+                    const tip = comment.card_data?.credits_spent || 0;
+                    if (tip > 0) {
+                        this.userTotalTipped += tip;
+                        UI.showToast(`Total supported: ${this.userTotalTipped} gold!`);
+                    }
+                }
+
                 // If we are on the "Latest" tab, prepending it
                 if (this.currentTab === 'all' && !comment.parent_comment_id) {
                     const card = UI.renderComment(comment);
@@ -73,6 +117,56 @@ class App {
         } catch (err) {
             console.error("Initialization failed", err);
         }
+    }
+
+    async calculateUserTotalTipped(userId) {
+        try {
+            // We fetch tip comments to sum them up for this user
+            // In a real app we'd have a backend total, here we poll tips
+            const tips = await Api.fetchComments({ onlyTips: true });
+            let total = 0;
+            tips.data.forEach(item => {
+                if (item.comment.author.id === userId) {
+                    total += (item.comment.card_data?.credits_spent || 0);
+                }
+            });
+            this.userTotalTipped = total;
+        } catch (err) {
+            console.error("Failed to calculate tips", err);
+        }
+    }
+
+    openRewardsModal() {
+        this.renderTiers();
+        this.els.modal.classList.remove('hidden');
+    }
+
+    renderTiers() {
+        this.els.tierList.innerHTML = '';
+        TIERS.forEach(tier => {
+            const isUnlocked = this.userTotalTipped >= tier.threshold;
+            const card = document.createElement('div');
+            card.className = `tier-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+            
+            card.innerHTML = `
+                <div class="tier-info">
+                    <div class="tier-name">${tier.icon} ${tier.name}</div>
+                    <div class="tier-reward">${tier.reward}</div>
+                </div>
+                <button class="tier-cost" ${isUnlocked ? 'disabled' : ''}>
+                    ${isUnlocked ? 'Unlocked' : tier.threshold + ' gold'}
+                </button>
+            `;
+
+            if (!isUnlocked) {
+                card.querySelector('.tier-cost').addEventListener('click', () => {
+                    Api.postComment(`Supporting at the ${tier.name} level!`, tier.threshold);
+                    this.els.modal.classList.add('hidden');
+                });
+            }
+
+            this.els.tierList.appendChild(card);
+        });
     }
 
     async switchTab(tab) {

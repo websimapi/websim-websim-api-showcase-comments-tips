@@ -21,6 +21,7 @@
                 <div class="title-row">
                     <h1 id="project-title">Loading...</h1>
                     <button id="btn-copy-info" title="Copy Technical Overview" class="icon-btn">📋</button>
+                    <button id="btn-rewards" title="View Reward Tiers" class="icon-btn">🏆</button>
                 </div>
                 <p id="creator-info">by <span id="owner-username">...</span></p>
             </div>
@@ -50,6 +51,22 @@
                 <img src="tip_icon.png" alt="Tip" class="btn-icon"> Support Creator
             </button>
         </footer>
+
+        <!-- Modals -->
+        <div id="modal-overlay" class="hidden">
+            <div id="tier-modal" class="modal">
+                <div class="modal-header">
+                    <h2>Support Tiers & Rewards</h2>
+                    <button id="close-modal" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-desc">Unlock exclusive cosmetic badges by supporting the creator. Your total lifetime tips unlock these tiers!</p>
+                    <div id="tier-list">
+                        <!-- Tiers injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Toast Notifications -->
         <div id="toast-container"></div>
